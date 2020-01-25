@@ -1,1 +1,31 @@
-test
+***STEPS***
+-Run SQL queries from Scripts file
+
+-Execute the utility service SpringBatch - for inserting data to tables
+
+-Hit the endpoints {/list, /count, /battle/{id}}
+
+
+
+- While trying to Normalize the table-
+I created Tables
+1. battle_attacker  - it will have the info of all the attacker kings and their army
+2. battle_defender -  it will have the info of all the defender kings and their army
+3. battle_details - it will have the details of all battles, but insetead of all the attacker and defender coloums, it will have attacker id and defender id which will be mapped to 
+					battle_attacker  and battle_defender P.Key
+4. battle_join - for a relation between tables battle_attacker, battle_defender and	battle_details
+5. battle_location - details of location and region of all the battles			
+
+
+- Thing I wasn't able to achieve yet-
+1. I wasn't able to create a nested query to insert data to battle_details table with attacker and defender id from tables battle_attacker and battle_defender
+	hence, For the endpoints I had to use battle_info table for now
+	
+2. I was facing a sql parsing issue while my batch job inserted data, due to time constraint I wasn't able to dig deeper in the issue, so for now all the fields are of type String - varchar
+
+3. I haven't done exception handling yet, primarily it needs for /battle/{id} endpoint to handle and catch exception in case the battle id doesn't exist. Have added comments in the code.
+
+4. For some strange reason "FIELDS TERMINATED BY ','" part of the query didnt work here, although it was working in SQL console, because of it instead of null getting added in records
+	empty string('') got added, which in turn got returned in /battle/{id} endpoint.
+	
+	
