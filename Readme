@@ -29,3 +29,4 @@ I created Tables
 	empty string('') got added, which in turn got returned in /battle/{id} endpoint.
 	
 	
+	*END*
