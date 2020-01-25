@@ -1,0 +1,75 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:batch="http://www.springframework.org/schema/batch" 
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch
+		http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+    <bean id="report" class="com.batch.model.Report" scope="prototype" />
+    
+	<batch:job id="reportJob">
+		<batch:step id="step1">
+			<batch:tasklet>
+				<batch:chunk reader="csvFileItemReader" writer="mysqlItemWriter"
+					commit-interval="2">
+				</batch:chunk>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+	
+	
+
+	<bean id="csvFileItemReader" class="org.springframework.batch.item.file.FlatFileItemReader">
+	
+
+		<!-- Read a csv file -->
+		<property name="resource" value="classpath:csv/battles1.csv" />
+
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+
+				<property name="lineTokenizer">
+					<bean
+						class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+						<property name="names" value="name,year,battle_number,attacker_king,defender_king,attacker_1,attacker_2,attacker_3,attacker_4,defender_1,defender_2,defender_3,defender_4,attacker_outcome,battle_type,major_death,major_capture,attacker_size,defender_size,attacker_commander,defender_commander,summer,location,region,note" />
+					</bean>
+				</property>
+
+				<property name="fieldSetMapper">
+					<bean
+						class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+						<property name="prototypeBeanName" value="report" />
+					</bean>
+					
+				</property>
+
+			</bean>
+		</property>
+
+	</bean>
+
+	<bean id="mysqlItemWriter"
+		class="org.springframework.batch.item.database.JdbcBatchItemWriter">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql">
+			<value>
+            <![CDATA[        
+            	insert into battle_info(name,year,battle_number,attacker_king,defender_king,attacker_1,attacker_2,attacker_3,attacker_4,defender_1,defender_2,defender_3,defender_4,attacker_outcome,battle_type,major_death,major_capture,attacker_size,defender_size,attacker_commander,defender_commander,summer,location,region,note) 
+            	values (:name, :year, :battle_number, :attacker_king, :defender_king, :attacker_1, :attacker_2, :attacker_3, :attacker_4, :defender_1, :defender_2, :defender_3, :defender_4, :attacker_outcome, :battle_type, :major_death, :major_capture, :attacker_size, :defender_size, :attacker_commander, :defender_commander, :summer, :location, :region, :note)
+            	
+            ]]>
+			</value>
+			<!--************for some strange reason "FIELDS TERMINATED BY ','" part of the query didnt work here, although it was working in SQL console******  -->
+		</property>
+		<!-- It will take care matching between object property and sql name parameter -->
+		<property name="itemSqlParameterSourceProvider">
+			<bean
+				class="org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider" />
+		</property>
+	</bean>
+	
+	
+
+</beans>
